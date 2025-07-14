@@ -10,19 +10,23 @@ wss.on('connection', function connection(ws, req) {
   const ip = req.socket.remoteAddress;
   console.log(`[+] Client connected: ${ip}`);
 
-  const pingInterval = setInterval(() => {
+  // Send timestamp every 5 seconds
+  const interval = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+      ws.send(JSON.stringify({
+        type: 'timestamp',
+        timestamp: new Date().toISOString(),
+      }));
     }
-  }, 10000);
+  }, 5000);
 
   ws.on('message', function incoming(message) {
-    console.log(`[${ip}] ↪️ Received:`, message.toString());
+    console.log(`[${ip}] ↪️ Received from client:`, message.toString());
   });
 
   ws.on('close', () => {
     console.log(`[-] Client disconnected: ${ip}`);
-    clearInterval(pingInterval);
+    clearInterval(interval);
   });
 
   ws.on('error', (err) => {
